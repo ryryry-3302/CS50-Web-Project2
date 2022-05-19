@@ -25,7 +25,8 @@ class Listing(models.Model):
 
     title = models.CharField(max_length=30)
     desc = models.CharField(max_length=400)
-    start_bid =models.DecimalField(max_digits=10,decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
+    start_bid =models.DecimalField(max_digits=10, decimal_places=2)
     imgurl = models.CharField(max_length=200,blank=True)
     catego = models.CharField(
         max_length=2,
