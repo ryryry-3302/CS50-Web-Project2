@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2 class="mb-3 text-center">Edit listing</h2>
+    <div class="container-sm w-50">
+        {% load crispy_forms_tags %}
+        <form action="{{ request.path }}" method="post" class="mb-5">
+            {% csrf_token %}
+            {{ form|crispy }}      
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center"> 
+                <input class="btn btn-dark mt-3 " type="submit" value="Edit">
+            </div>
+        </form>
+    </div>
+
+    
+{% endblock %}

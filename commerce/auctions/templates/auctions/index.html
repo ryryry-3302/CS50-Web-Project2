@@ -1,14 +1,17 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2 class="mb-3">Active Listings</h2>
     <div>
         {% for listing in listings %}
         <div class="container-fluid mb-5">
-            <h4>{{ listing.title }}</h4>
-            {% if listing.imgurl %}
-            <img src="{{listing.imgurl}}" class="rounded img-thumbnail w-25" >
-            {% endif %}
+            <a class="text-decoration-none text-reset" href="{% url 'listingpage' list_id=listing.id %}">
+                <h4>{{ listing.title }}</h4>
+                {% if listing.imgurl %}
+                <img src="{{listing.imgurl}}" class="rounded img-thumbnail w-25" >
+                {% endif %}
+            </a>
+            
 
             <li>Catergory {{listing.get_catego_display}}</li>
             {% if listing.price == 0.00 %}

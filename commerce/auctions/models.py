@@ -1,3 +1,5 @@
+from itertools import product
+from turtle import title
 from unicodedata import category
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -37,7 +39,19 @@ class Listing(models.Model):
         'User',
         on_delete=models.CASCADE,
     )
+#set to foreign key for future bids model :D
+    owner =  models.CharField(max_length=400, blank=True)
     
+class WatchList(models.Model):
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+    )
+
+    product = models.ForeignKey(
+        'Listing',
+        on_delete=models.CASCADE,
+    )
     
 
 
