@@ -1,0 +1,31 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2 class="mb-3">My List</h2>
+    <div>
+        {% for listing in listings %}
+        <div class="container-fluid mb-5">
+            <a class="text-decoration-none text-reset" href="{% url 'listingpage' list_id=listing.id %}">
+                <h4>{{ listing.product.title }}</h4>
+                {% if listing.product.imgurl %}
+                <img src="{{listing.product.imgurl}}" class="rounded img-thumbnail w-25" >
+                {% endif %}
+            </a>
+            
+
+            <li>Catergory {{listing.product.get_catego_display}}</li>
+            {% if listing.product.price == 0.00 %}
+            <li>${{listing.product.start_bid}}</li>
+            {% else %}
+            <li>${{listing.product.price}}</li>
+            {% endif %}
+            <li>Sold by {{listing.product.user}}</li>
+            <form action="{% url 'mylist' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" value="{{listing.id}}" name="removethis">
+                <input class="btn btn-dark mt-3 " type="submit" value="Remove">
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

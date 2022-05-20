@@ -1,4 +1,5 @@
 from itertools import product
+from logging.handlers import WatchedFileHandler
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -6,14 +7,14 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
-from .models import User, Listing, WatchList
+from .models import User, Listing, WatchList, Comment
 
 
 class ListingForm(forms.ModelForm):
         # specify the name of model to use
         class Meta:
             model = Listing
-            exclude = ['user'], ['price']
+            exclude = ['user', 'owner', 'price']
 
 
 
@@ -23,6 +24,16 @@ def index(request):
     return render(request, "auctions/index.html",
     {
         "listings": listings
+    })
+
+@login_required
+def mylist(request):
+    if request.method == 'POST':
+        WatchList.objects.get(id=request.POST['removethis']).delete()
+    mywatchlist = WatchList.objects.filter(user=request.user).all()
+    return render(request, "auctions/mylist.html",
+    {
+        "listings": mywatchlist
     })
 
 
@@ -101,11 +112,11 @@ def create(request):
 def listing(request ,list_id):
     if request.method == "POST":
         if request.user.is_authenticated == True:
-            print("hi")
+            
             listing_to_add = Listing.objects.get(pk=list_id)
             print(listing_to_add)
             l = WatchList(user=request.user, product=listing_to_add)
-            print(l)
+            
             l.save()
             return HttpResponseRedirect(reverse("index"))
         else:
@@ -114,11 +125,13 @@ def listing(request ,list_id):
 
     if Listing.objects.filter(pk=list_id).exists():
         inlist = True
+        product = Listing.objects.get(pk=list_id)
         if WatchList.objects.filter(user=request.user, product=Listing.objects.get(pk=list_id)).exists():
             inlist = False
         return render(request, "auctions/listing.html", {
             "listing" : Listing.objects.get(pk=list_id),
             "inlist" : inlist,
+            "comments" : Comment.objects.filter(on_product=product).all().order_by('-id'), 
         })
     else:
         return HttpResponseRedirect(reverse("index"))
@@ -147,5 +160,18 @@ def edit(request, list_id):
         return render(request, "auctions/edit.html", {
             'form': f
         })
+    else:
+        return HttpResponseRedirect(reverse("index"))
+
+@login_required
+def addcomment(request):
+    if request.method == 'POST':
+        c = request.POST['comment']
+        i = request.POST['idof']
+        newcomment = Comment(poster=request.user, on_product=Listing.objects.get(pk=i), text=c)
+        newcomment.save()
+        return HttpResponseRedirect(reverse("listingpage", kwargs={'list_id': i}))
+
+
     else:
         return HttpResponseRedirect(reverse("index"))

@@ -3,6 +3,7 @@ from turtle import title
 from unicodedata import category
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -52,6 +53,24 @@ class WatchList(models.Model):
         'Listing',
         on_delete=models.CASCADE,
     )
+
+class Comment(models.Model):
+    poster = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+    )
+    on_product = models.ForeignKey(
+        'Listing',
+        on_delete=models.CASCADE,
+    )
+    text = models.CharField(max_length=400)
+    post_time = models.DateTimeField(auto_now_add=True, blank=True)
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        
+        self.post_time = timezone.now()
+        return super(Comment, self).save(*args, **kwargs)
+
     
 
 

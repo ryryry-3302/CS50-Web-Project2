@@ -2,39 +2,63 @@
 
 {% block body %}
 <button type="button" class="btn btn-secondary" onclick="location.href='/'">Back to active listings</button>
-    <h2 class="m-5 mt-4 mb-3">{{listing.title}}</h2>
-    <div>
-        <div class="container-md m-5 mt-2">
-            {% if listing.imgurl %}
-            <img src="{{listing.imgurl}}" class="rounded img-thumbnail w-25" >
-            {% endif %}
-            <p>Product description: {{listing.desc}}</p>
-            <li>Catergory {{listing.get_catego_display}}</li>
+    <div class="border p-2 m-2">
+        <h2 class="m-5 mt-4 mb-3">{{listing.title}}</h2>
+        <div>
+            <div class="container-md m-5 mt-2 ">
+                {% if listing.imgurl %}
+                <img src="{{listing.imgurl}}" class="rounded img-thumbnail w-25" >
+                {% endif %}
+                <p>Product description: {{listing.desc}}</p>
+                <li>Catergory {{listing.get_catego_display}}</li>
+                
+                <li>Minimum bid:${{listing.start_bid}}</li>
             
-            <li>Minimum bid:${{listing.start_bid}}</li>
+                <li>Highest bid: ${{listing.price}}</li>
+
+                <li>Created by: {{listing.user}}</li>
+
+                
         
-            <li>Highest bid: ${{listing.price}}</li>
 
-            <li>Created by: {{listing.user}}</li>
 
+                {% if user == listing.user %}
+
+                <button type="button" class="btn btn-dark" onclick="location.href='{% url 'edit' list_id=listing.id %}'">Edit Listing</button>
+
+                {% elif inlist %}
+                <form action="{% url 'listingpage' list_id=listing.id %}" method="POST">
+                    {% csrf_token%}
+                    <button type="submit" class="btn btn-dark">Add to Watchlist</button>
+                </form>
+                {% else %}
+                    Added to WatchList
+                {% endif %}
+
+                <div>
+                    <h3 class="mt-5 md-2">Comments</h3>
+                </div>
+                
+                <form action="{% url 'addcomment' %}" method='POST'>
+                     {% csrf_token %}
+                    <input type="textare" required name='comment'>
+                    <input type="hidden" value='{{listing.id}}' name="idof">
+                    <button type="submit" class="btn btn-dark">Post</button>
+                </form>
+                <div class="container-md w-50 mt-3 m-2 border">
+                    {% for comment in comments%}
+                        <p>{{comment.text}}</p>
+                        <p class="text-end">{{comment.poster}} posted at {{comment.post_time}}</p>
+                        
+                        
+                    {% endfor %}
+                </div>
+                
+            </div>
             
-       
-
-
-            {% if user == listing.user %}
-
-            <button type="button" class="btn btn-dark" onclick="location.href='{% url 'edit' list_id=listing.id %}'">Edit Listing</button>
-
-            {% elif inlist %}
-            <form action="{% url 'listingpage' list_id=listing.id %}" method="POST">
-                {% csrf_token%}
-                <button type="submit" class="btn btn-dark">Add to Watchlist</button>
-            </form>
-            {% else %}
-                Added to WatchList
-            {% endif %}
-            {% endblock %}
         </div>
     </div>
     
     
+    
+    {% endblock %}
