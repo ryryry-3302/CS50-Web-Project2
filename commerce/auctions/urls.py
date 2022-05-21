@@ -14,5 +14,6 @@ urlpatterns = [
     path("edit/<int:list_id>", views.edit, name="edit"),
     path("mylist", views.mylist, name="mylist"),
     path("addcomment", views.addcomment, name="addcomment"),
+    path("bid", views.bid, name="bid"),
 
 ]

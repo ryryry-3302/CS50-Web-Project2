@@ -7,14 +7,17 @@ from django.shortcuts import render
 from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
-from .models import User, Listing, WatchList, Comment
+from .models import User, Listing, WatchList, Comment, Bid
 
 
 class ListingForm(forms.ModelForm):
         # specify the name of model to use
         class Meta:
             model = Listing
-            exclude = ['user', 'owner', 'price']
+            exclude = ['user', 'owner', 'price', 'winning_bid', 'open']
+
+
+
 
 
 
@@ -126,8 +129,12 @@ def listing(request ,list_id):
     if Listing.objects.filter(pk=list_id).exists():
         inlist = True
         product = Listing.objects.get(pk=list_id)
-        if WatchList.objects.filter(user=request.user, product=Listing.objects.get(pk=list_id)).exists():
-            inlist = False
+        if Bid.objects.filter(on_product=product).order_by('-bid')[:1].exists():
+            field_value = getattr(Bid.objects.filter(on_product=product).order_by('-bid')[:1].get(), 'bid')
+            Listing.objects.filter(pk=list_id).update(price=field_value)
+        if request.user.is_authenticated == True:
+            if WatchList.objects.filter(user=request.user, product=Listing.objects.get(pk=list_id)).exists():
+                inlist = False
         return render(request, "auctions/listing.html", {
             "listing" : Listing.objects.get(pk=list_id),
             "inlist" : inlist,
@@ -175,3 +182,12 @@ def addcomment(request):
 
     else:
         return HttpResponseRedirect(reverse("index"))
+
+@login_required
+def bid(request):
+    if request.method == 'POST':
+        bidprice = request.POST['bid']
+        i = request.POST['idofproduct']
+        newbid = Bid(bidder=request.user, on_product=Listing.objects.get(pk=i), bid=bidprice)
+        newbid.save()
+    return HttpResponseRedirect(reverse("listingpage", kwargs={'list_id': i}))

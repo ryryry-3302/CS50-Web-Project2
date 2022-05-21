@@ -6,6 +6,9 @@
         {% for listing in listings %}
         <div class="container-fluid mb-5">
             <a class="text-decoration-none text-reset" href="{% url 'listingpage' list_id=listing.id %}">
+                {% if listing.open == False %}
+                <h3>SOLD to {{listing.winning_bid.bidder}}</h3>
+                {% endif %}
                 <h4>{{ listing.title }}</h4>
                 {% if listing.imgurl %}
                 <img src="{{listing.imgurl}}" class="rounded img-thumbnail w-25" >
@@ -15,13 +18,12 @@
 
             <li>Catergory {{listing.get_catego_display}}</li>
             {% if listing.price == 0.00 %}
-            <li>${{listing.start_bid}}</li>
+            <li>Minimum bid = ${{listing.start_bid}}</li>
             {% else %}
-            <li>${{listing.price}}</li>
+            <li>Current bid = ${{listing.price}}</li>
             {% endif %}
             <li>Created by {{listing.user}}</li>
         </div>
         {% endfor %}
     </div>
-    TODO
 {% endblock %}
